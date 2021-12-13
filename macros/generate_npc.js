@@ -33,20 +33,20 @@ var generate_name = function() {
 };
 
 let find_token = function(string) {
-  console.log(string);
   let search = new RegExp(string, 'i');
   choices = _.filter(game.moulinette.cache.cache["moulinette/images/custom/index.json"][0].packs[2].assets, function(path){
     path_parts = _.split(path, "/");
+    if (path_parts[0] != "humanoid") {
+      return false;
+    }
     token_desc = path_parts[path_parts.length - 1];
     return token_desc.match(search);
   });
   if (choices.length === 0) {
-    console.log("No tokens found for " + string);
     return null;
   }
-  pick = _.random(0, choices.length);
+  pick = _.random(0, choices.length - 1);
   token_file = choices[pick];
-  console.log(token_file);
   return "moulinette/images/custom/2minutetabletop/tokens_sorted/" + token_file;
 };
 
@@ -74,17 +74,21 @@ if (_.includes(["is hostile towards", "is scared of"], attitude)){
 let token = find_token(race);
 if (token == null) {
   race_bits = _.split(race, " ");
-  console.log(race_bits);
   main_race = race_bits[race_bits.length - 1];
   token = find_token(main_race);
 }
 
 name = generate_name();
-console.log(race);
-let description = "<b>" + name + "</b>, " + age + " " + race + " that " + attitude + " the party"
-let npc = description + "<br/><b>High Concept:</b> " + high_concept + "<br/><b>Trouble:</b> " + trouble
-avatar = "<img src='" + token + "'/>"
-let output = avatar + npc + "<br/><br/><button class='npc-create' data-name='" + name + "' data-race='" + race + "' data-npc='" + npc + "' data-token='" + token + "' data-disposition=" + token_disposition + ">Create NPC</button>"
+let description = "<b>" + name + "</b>, " + age + " " + race + " that " + attitude + " the party";
+let npc = description + "<br/><b>High Concept:</b> " + high_concept + "<br/><b>Trouble:</b> " + trouble;
+avatar = "<img src='" + token + "'/>";
+button = $("<button class='npc-create'>Create NPC</button>");
+button.attr("data-name", name);
+button.attr("data-race", race);
+button.attr("data-npc", npc);
+button.attr("data-token", token);
+button.attr("data-disposition", token_disposition);
+let output = avatar + npc + "<br/><br/>" + button.get(0).outerHTML
 
 let chatData = {
   user: game.userId,
