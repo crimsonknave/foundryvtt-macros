@@ -1,3 +1,4 @@
+// Deprecated, folded this functionality into the create macro
 if (Object.keys(game.moulinette.cache.cache).length === 0) {
   ui.notifications.error("Moulinette cache not built");
 } else {

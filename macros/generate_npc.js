@@ -1,3 +1,4 @@
+// Method Definitions
 async function roll(table) {
   table = game.tables.entities.find(t => t.name === table);
   roll = await table.roll()
@@ -50,6 +51,52 @@ let find_token = function(string) {
   return "moulinette/images/custom/2minutetabletop/tokens_sorted/" + token_file;
 };
 
+// Hook check
+// If this were a module, we'd have a hook on load, but it's not so we check every time
+if (game.crimsonknave && game.crimsonknave.hooked) {
+} else {
+  console.log("crimsonknave object not initialized, doing so and adding hook.");
+  game.crimsonknave = {};
+  game.crimsonknave.hooked = false;
+
+  if (Object.keys(game.moulinette.cache.cache).length === 0) {
+    ui.notifications.error("Moulinette cache not built");
+  } else {
+    let create_actor = async function(data) {
+      let actor = await Actor.create({
+        name: data.name,
+        type: "npc",
+        img: data.token
+      });
+      actor_updates = {}
+      actor_updates["data.details.biography.value"] = data.npc;
+      actor_updates["data.details.type.value"] = "humanoid";
+      actor_updates["data.details.type.subtype"] = data.race;
+      actor_updates["token.actorLink"] = true;
+      actor_updates["token.disposition"] = parseInt(data.disposition);
+
+      actor.update(actor_updates);
+    }
+
+    $(document).on('click', '.npc-create', function () {
+      data = $(this).data();
+      create_actor(data);
+      ui.notifications.info("Created " + data.name);
+
+    });
+    ui.notifications.info("NPC Creation Hook Registered");
+    game.crimsonknave.hooked = true;
+    console.log("Create NPC hook attached");
+  }
+
+}
+
+// Generate data
+
+if (game.crimsonknave.hooked == false) {
+  console.log("Not hooked, don't try to make the NPC");
+  throw "Not hooked";
+}
 let [
 age,
 race,
@@ -79,6 +126,8 @@ if (token == null) {
 }
 
 name = generate_name();
+
+// Build chat message
 let description = "<b>" + name + "</b>, " + age + " " + race + " that " + attitude + " the party";
 let npc = description + "<br/><b>High Concept:</b> " + high_concept + "<br/><b>Trouble:</b> " + trouble;
 avatar = "<img src='" + token + "'/>";
@@ -96,3 +145,4 @@ let chatData = {
   content: output,
 };
 ChatMessage.create(chatData, {});
+
