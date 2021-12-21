@@ -1,3 +1,10 @@
+// Chech moulinette cache
+if (Object.keys(game.moulinette.cache.cache).length === 0) {
+  ui.notifications.info("Moulinette cache not found, building");
+  const user = await game.moulinette.applications.Moulinette.getUser();
+  const index = await game.moulinette.applications.MoulinetteFileUtil.buildAssetIndex(["moulinette/images/custom/index.json"]);
+}
+
 // Method Definitions
 async function roll(table) {
   table = game.tables.entities.find(t => t.name === table);
@@ -62,51 +69,46 @@ let find_guard_token = function(race) {
 
 // Hook check
 // If this were a module, we'd have a hook on load, but it's not so we check every time
-if (game.crimsonknave && game.crimsonknave.guard_hooked) {
-} else {
+if (!(game.crimsonknave && game.crimsonknave.guard_hooked)) {
   console.log("crimsonknave object not initialized, doing so and adding hook.");
   if (!game.crimsonknave) {
     game.crimsonknave = {};
   }
   game.crimsonknave.guard_hooked = false;
 
-  if (Object.keys(game.moulinette.cache.cache).length === 0) {
-    ui.notifications.error("Moulinette cache not built");
-  } else {
-    let create_actor = async function(data) {
-      ddb_monsters = game.packs.get("world.ddb-marith-monsters");
-      await ddb_monsters.getIndex();
-      let guard_id = ddb_monsters.index.find(m => m.name === "Guard")._id;
-      let guard_npc = await ddb_monsters.getDocument(guard_id);
-      let guard_npc_data = guard_npc.data;
-      let actor = await Actor.create({
-        name: data.name,
-        type: "npc",
-        img: data.token,
-        data: guard_npc_data.data,
-        items: guard_npc_data.items,
-        permission: { default: 1 }
-      });
-      actor_updates = {}
-      actor_updates["data.details.biography.value"] = data.npc;
-      actor_updates["data.details.type.value"] = "humanoid";
-      actor_updates["data.details.type.subtype"] = data.race;
-      actor_updates["token.actorLink"] = true;
-      actor_updates["token.disposition"] = parseInt(data.disposition);
-
-      actor.update(actor_updates);
-    }
-
-    $(document).on('click', '.guard-create', function () {
-      data = $(this).data();
-      create_actor(data);
-      ui.notifications.info("Created " + data.name);
-
+  let create_actor = async function(data) {
+    ddb_monsters = game.packs.get("world.ddb-marith-monsters");
+    await ddb_monsters.getIndex();
+    let guard_id = ddb_monsters.index.find(m => m.name === "Guard")._id;
+    let guard_npc = await ddb_monsters.getDocument(guard_id);
+    let guard_npc_data = guard_npc.data;
+    let actor = await Actor.create({
+      name: data.name,
+      type: "npc",
+      img: data.token,
+      data: guard_npc_data.data,
+      items: guard_npc_data.items,
+      permission: { default: 1 }
     });
-    ui.notifications.info("Guard Creation Hook Registered");
-    game.crimsonknave.guard_hooked = true;
-    console.log("Create guard hook attached");
+    actor_updates = {}
+    actor_updates["data.details.biography.value"] = data.npc;
+    actor_updates["data.details.type.value"] = "humanoid";
+    actor_updates["data.details.type.subtype"] = data.race;
+    actor_updates["token.actorLink"] = true;
+    actor_updates["token.disposition"] = parseInt(data.disposition);
+
+    actor.update(actor_updates);
   }
+
+  $(document).on('click', '.guard-create', function () {
+    data = $(this).data();
+    create_actor(data);
+    ui.notifications.info("Created " + data.name);
+
+  });
+  ui.notifications.info("Guard Creation Hook Registered");
+  game.crimsonknave.guard_hooked = true;
+  console.log("Create guard hook attached");
 
 }
 
