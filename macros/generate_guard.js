@@ -62,20 +62,30 @@ let find_guard_token = function(race) {
 
 // Hook check
 // If this were a module, we'd have a hook on load, but it's not so we check every time
-if (game.crimsonknave && game.crimsonknave.hooked) {
+if (game.crimsonknave && game.crimsonknave.guard_hooked) {
 } else {
   console.log("crimsonknave object not initialized, doing so and adding hook.");
-  game.crimsonknave = {};
-  game.crimsonknave.hooked = false;
+  if (!game.crimsonknave) {
+    game.crimsonknave = {};
+  }
+  game.crimsonknave.guard_hooked = false;
 
   if (Object.keys(game.moulinette.cache.cache).length === 0) {
     ui.notifications.error("Moulinette cache not built");
   } else {
     let create_actor = async function(data) {
+      ddb_monsters = game.packs.get("world.ddb-marith-monsters");
+      await ddb_monsters.getIndex();
+      let guard_id = ddb_monsters.index.find(m => m.name === "Guard")._id;
+      let guard_npc = await ddb_monsters.getDocument(guard_id);
+      let guard_npc_data = guard_npc.data;
       let actor = await Actor.create({
         name: data.name,
         type: "npc",
-        img: data.token
+        img: data.token,
+        data: guard_npc_data.data,
+        items: guard_npc_data.items,
+        permission: { default: 1 }
       });
       actor_updates = {}
       actor_updates["data.details.biography.value"] = data.npc;
@@ -87,24 +97,24 @@ if (game.crimsonknave && game.crimsonknave.hooked) {
       actor.update(actor_updates);
     }
 
-    $(document).on('click', '.npc-create', function () {
+    $(document).on('click', '.guard-create', function () {
       data = $(this).data();
       create_actor(data);
       ui.notifications.info("Created " + data.name);
 
     });
-    ui.notifications.info("NPC Creation Hook Registered");
-    game.crimsonknave.hooked = true;
-    console.log("Create NPC hook attached");
+    ui.notifications.info("Guard Creation Hook Registered");
+    game.crimsonknave.guard_hooked = true;
+    console.log("Create guard hook attached");
   }
 
 }
 
 // Generate data
 
-if (game.crimsonknave.hooked == false) {
-  console.log("Not hooked, don't try to make the NPC");
-  throw "Not hooked";
+if (game.crimsonknave.guard_hooked == false) {
+  console.log("Not guard_hooked, don't try to make the guard");
+  throw "Not guard_hooked";
 }
 let [
 age,
@@ -135,7 +145,7 @@ name = generate_name();
 let description = "<b>" + name + "</b>, " + age + " " + race + " that " + attitude + " the party";
 let npc = description + "<br/><b>High Concept:</b> " + modifier + " Guard<br/><b>Trouble:</b> " + trouble;
 avatar = "<img src='" + token + "'/>";
-button = $("<button class='npc-create'>Create NPC</button>");
+button = $("<button class='guard-create'>Create Guard</button>");
 button.attr("data-name", name);
 button.attr("data-race", race);
 button.attr("data-npc", npc);
@@ -149,4 +159,3 @@ let chatData = {
   content: output,
 };
 ChatMessage.create(chatData, {});
-

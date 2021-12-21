@@ -56,7 +56,9 @@ let find_token = function(string) {
 if (game.crimsonknave && game.crimsonknave.hooked) {
 } else {
   console.log("crimsonknave object not initialized, doing so and adding hook.");
-  game.crimsonknave = {};
+  if (!game.crimsonknave) {
+    game.crimsonknave = {};
+  }
   game.crimsonknave.hooked = false;
 
   if (Object.keys(game.moulinette.cache.cache).length === 0) {
@@ -66,7 +68,8 @@ if (game.crimsonknave && game.crimsonknave.hooked) {
       let actor = await Actor.create({
         name: data.name,
         type: "npc",
-        img: data.token
+        img: data.token,
+        permission: { default: 1 }
       });
       actor_updates = {}
       actor_updates["data.details.biography.value"] = data.npc;
@@ -145,4 +148,3 @@ let chatData = {
   content: output,
 };
 ChatMessage.create(chatData, {});
-
