@@ -103,7 +103,7 @@ if (game.crimsonknave && game.crimsonknave.guard_hooked) {
       ui.notifications.info("Created " + data.name);
 
     });
-    ui.notifications.info("NPC Creation Hook Registered");
+    ui.notifications.info("Guard Creation Hook Registered");
     game.crimsonknave.guard_hooked = true;
     console.log("Create guard hook attached");
   }
