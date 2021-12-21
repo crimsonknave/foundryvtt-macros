@@ -62,10 +62,12 @@ let find_guard_token = function(race) {
 
 // Hook check
 // If this were a module, we'd have a hook on load, but it's not so we check every time
-if (game.crimsonknave && game.crimsonknave.hooked) {
+if (game.crimsonknave && game.crimsonknave.guard_hooked) {
 } else {
   console.log("crimsonknave object not initialized, doing so and adding hook.");
-  game.crimsonknave = {};
+  if (!game.crimsonknave) {
+    game.crimsonknave = {};
+  }
   game.crimsonknave.guard_hooked = false;
 
   if (Object.keys(game.moulinette.cache.cache).length === 0) {
@@ -95,7 +97,7 @@ if (game.crimsonknave && game.crimsonknave.hooked) {
       actor.update(actor_updates);
     }
 
-    $(document).on('click', '.npc-create', function () {
+    $(document).on('click', '.guard-create', function () {
       data = $(this).data();
       create_actor(data);
       ui.notifications.info("Created " + data.name);
@@ -103,7 +105,7 @@ if (game.crimsonknave && game.crimsonknave.hooked) {
     });
     ui.notifications.info("NPC Creation Hook Registered");
     game.crimsonknave.guard_hooked = true;
-    console.log("Create NPC hook attached");
+    console.log("Create guard hook attached");
   }
 
 }
@@ -111,7 +113,7 @@ if (game.crimsonknave && game.crimsonknave.hooked) {
 // Generate data
 
 if (game.crimsonknave.guard_hooked == false) {
-  console.log("Not guard_hooked, don't try to make the NPC");
+  console.log("Not guard_hooked, don't try to make the guard");
   throw "Not guard_hooked";
 }
 let [
@@ -143,7 +145,7 @@ name = generate_name();
 let description = "<b>" + name + "</b>, " + age + " " + race + " that " + attitude + " the party";
 let npc = description + "<br/><b>High Concept:</b> " + modifier + " Guard<br/><b>Trouble:</b> " + trouble;
 avatar = "<img src='" + token + "'/>";
-button = $("<button class='npc-create'>Create NPC</button>");
+button = $("<button class='guard-create'>Create Guard</button>");
 button.attr("data-name", name);
 button.attr("data-race", race);
 button.attr("data-npc", npc);
@@ -157,4 +159,3 @@ let chatData = {
   content: output,
 };
 ChatMessage.create(chatData, {});
-
