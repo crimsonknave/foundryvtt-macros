@@ -66,16 +66,22 @@ if (game.crimsonknave && game.crimsonknave.hooked) {
 } else {
   console.log("crimsonknave object not initialized, doing so and adding hook.");
   game.crimsonknave = {};
-  game.crimsonknave.hooked = false;
+  game.crimsonknave.guard_hooked = false;
 
   if (Object.keys(game.moulinette.cache.cache).length === 0) {
     ui.notifications.error("Moulinette cache not built");
   } else {
     let create_actor = async function(data) {
+      monsters = game.packs.get("world.ddb-marith-monsters");
+      console.log(monsters);
+      let guard_npc_data = monsters.get("dxr9wChQq1vsqtxE").data;
+      console.log(guard_npc_data);
       let actor = await Actor.create({
         name: data.name,
         type: "npc",
-        img: data.token
+        img: data.token,
+        data: guard_npc_data.data,
+        items: guard_npc_data.items
       });
       actor_updates = {}
       actor_updates["data.details.biography.value"] = data.npc;
@@ -94,7 +100,7 @@ if (game.crimsonknave && game.crimsonknave.hooked) {
 
     });
     ui.notifications.info("NPC Creation Hook Registered");
-    game.crimsonknave.hooked = true;
+    game.crimsonknave.guard_hooked = true;
     console.log("Create NPC hook attached");
   }
 
@@ -102,9 +108,9 @@ if (game.crimsonknave && game.crimsonknave.hooked) {
 
 // Generate data
 
-if (game.crimsonknave.hooked == false) {
-  console.log("Not hooked, don't try to make the NPC");
-  throw "Not hooked";
+if (game.crimsonknave.guard_hooked == false) {
+  console.log("Not guard_hooked, don't try to make the NPC");
+  throw "Not guard_hooked";
 }
 let [
 age,
