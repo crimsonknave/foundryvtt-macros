@@ -82,7 +82,8 @@ if (game.crimsonknave && game.crimsonknave.hooked) {
         type: "npc",
         img: data.token,
         data: guard_npc_data.data,
-        items: guard_npc_data.items
+        items: guard_npc_data.items,
+        permission: { default: 1 }
       });
       actor_updates = {}
       actor_updates["data.details.biography.value"] = data.npc;

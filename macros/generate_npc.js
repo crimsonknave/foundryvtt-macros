@@ -66,7 +66,8 @@ if (game.crimsonknave && game.crimsonknave.hooked) {
       let actor = await Actor.create({
         name: data.name,
         type: "npc",
-        img: data.token
+        img: data.token,
+        permission: { default: 1 }
       });
       actor_updates = {}
       actor_updates["data.details.biography.value"] = data.npc;
