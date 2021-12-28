@@ -1,3 +1,5 @@
+// _ is `lodash`, which is included by ddb-game-log
+//
 // Chech moulinette cache
 if (Object.keys(game.moulinette.cache.cache).length === 0) {
   ui.notifications.info("Moulinette cache not found, building");
@@ -7,7 +9,7 @@ if (Object.keys(game.moulinette.cache.cache).length === 0) {
 
 // Method Definitions
 async function roll(table) {
-  table = game.tables.entities.find(t => t.name === table);
+  table = game.tables.getName(table);
   roll = await table.roll()
   let processed_results = _.map(roll.results, function(result, i) {
     id = result.data.resultId;
