@@ -62,12 +62,12 @@ let find_token = function(string) {
 
 // Hook check
 // If this were a module, we'd have a hook on load, but it's not so we check every time
-if (!(game.crimsonknave && game.crimsonknave.hooked)) {
+if (!(game.crimsonknave && game.crimsonknave.adventurer_hooked)) {
   console.log("crimsonknave object not initialized, doing so and adding hook.");
   if (!game.crimsonknave) {
     game.crimsonknave = {};
   }
-  game.crimsonknave.npc_hooked = false;
+  game.crimsonknave.adventurer_hooked = false;
 
   let create_actor = async function(data) {
     let actor = await Actor.create({
@@ -86,34 +86,36 @@ if (!(game.crimsonknave && game.crimsonknave.hooked)) {
     actor.update(actor_updates);
   }
 
-  $(document).on('click', '.npc-create', function () {
+  $(document).on('click', '.adventurer-create', function () {
     data = $(this).data();
     create_actor(data);
     ui.notifications.info("Created " + data.name);
 
   });
-  ui.notifications.info("NPC Creation Hook Registered");
-  game.crimsonknave.npc_hooked = true;
-  console.log("Create NPC hook attached");
+  ui.notifications.info("Adventurer Creation Hook Registered");
+  game.crimsonknave.adventurer_hooked = true;
+  console.log("Create Adventurer hook attached");
 }
 
 // Generate data
 
-if (game.crimsonknave.npc_hooked == false) {
-  console.log("Not hooked, don't try to make the NPC");
+if (game.crimsonknave.adventurer_hooked == false) {
+  console.log("Not hooked, don't try to make the Adventurer");
   throw "Not hooked";
 }
 let [
 age,
 race,
 attitude,
-high_concept,
+high_concept_modifier,
+adventurer_class,
 trouble
 ] = await Promise.all([
 roll("Age"),
 roll("Races"),
 roll("Attitude"),
-roll("High Concept"),
+roll("High Concept Modifier"),
+roll("Adventurer Class"),
 roll("Trouble"),
 ]);
 
@@ -124,7 +126,12 @@ if (_.includes(["is hostile towards", "is scared of"], attitude)){
   token_disposition = 1;
 }
 
-let token = find_token(race);
+let token = find_token(race + " " + adventurer_class);
+if (token == null) {
+  race_bits = _.split(race, " ");
+  main_race = race_bits[race_bits.length - 1];
+  token = find_token(main_race + " " + adventurer_class);
+}
 if (token == null) {
   race_bits = _.split(race, " ");
   main_race = race_bits[race_bits.length - 1];
@@ -135,9 +142,9 @@ name = generate_name();
 
 // Build chat message
 let description = "<b>" + name + "</b>, " + age + " " + race + " that " + attitude + " the party";
-let npc = description + "<br/><b>High Concept:</b> " + high_concept + "<br/><b>Trouble:</b> " + trouble;
+let npc = description + "<br/><b>High Concept:</b> " + high_concept_modifier + " " + adventurer_class + "<br/><b>Trouble:</b> " + trouble;
 avatar = "<img src='" + token + "'/>";
-button = $("<button class='npc-create'>Create NPC</button>");
+button = $("<button class='adventurer-create'>Create Adventurer</button>");
 button.attr("data-name", name);
 button.attr("data-race", race);
 button.attr("data-npc", npc);

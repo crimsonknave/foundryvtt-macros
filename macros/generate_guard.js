@@ -1,6 +1,6 @@
 // _ is `lodash`, which is included by ddb-game-log
 //
-// Chech moulinette cache
+// Check moulinette cache
 if (Object.keys(game.moulinette.cache.cache).length === 0) {
   ui.notifications.info("Moulinette cache not found, building");
   const user = await game.moulinette.applications.Moulinette.getUser();
